@@ -52,7 +52,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         if (!isLocationEnabled()) {
             isLocationEnabled();
-            finish();
         } else
             getLocationPermission();
 
