@@ -1,13 +1,19 @@
 package com.example.mapsactivity;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
@@ -44,41 +50,45 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
-        getLocationPermission();
+        if (!isLocationEnabled()) {
+            isLocationEnabled();
+            finish();
+        } else
+            getLocationPermission();
 
     }
-    /*
-        private boolean isLocationEnabled() {
-            LocationManager lm = (LocationManager)
-                    getSystemService(Context.LOCATION_SERVICE);
-            boolean gps_enabled = false;
-            boolean network_enabled = false;
-            try {
-                gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            try {
-                network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            if (!gps_enabled && !network_enabled) {
-                new AlertDialog.Builder(MapsActivity.this)
-                        .setMessage("Enable your location")
-                        .setPositiveButton("Settings", new
-                                DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-                                        startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                                    }
-                                })
-                        .setNegativeButton("Cancel", null)
-                        .show();
-            }
-            return true;
+
+    private boolean isLocationEnabled() {
+        LocationManager lm = (LocationManager)
+                getSystemService(Context.LOCATION_SERVICE);
+        boolean gps_enabled = false;
+        boolean network_enabled = false;
+        try {
+            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    */
+        try {
+            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (!gps_enabled && !network_enabled) {
+            new AlertDialog.Builder(MapsActivity.this)
+                    .setMessage("Enable your location")
+                    .setPositiveButton("Settings", new
+                            DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                                    startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                                }
+                            })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        }
+        return true;
+    }
+
 
     private void initMap() {
         Log.d(TAG, "initMap: initializing map");
@@ -97,7 +107,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 location.addOnCompleteListener(new OnCompleteListener() {
                     @Override
                     public void onComplete(@NonNull Task task) {
-                        if (task.isSuccessful()) {
+                        if (task.isSuccessful() && task.getResult() != null) {
                             Log.d(TAG, "onComplete: found location!");
                             Location currentLocation = (Location) task.getResult();
 
