@@ -198,7 +198,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
-            // mMap.setMyLocationEnabled(true);
+            mMap.setMyLocationEnabled(true);
 
 
         }
